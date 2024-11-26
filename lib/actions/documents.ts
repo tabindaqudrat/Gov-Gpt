@@ -53,7 +53,7 @@ export const uploadDocument = async (
     // Flatten and store embeddings
     await db.insert(embeddingsTable).values(
       embeddingsArray.flat().map(embedding => ({
-        resourceId: document.id,
+        resource_id: document.id,
         ...embedding,
       }))
     );

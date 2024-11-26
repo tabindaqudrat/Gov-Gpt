@@ -1,6 +1,6 @@
 import { generateId } from 'ai';
 import { index, pgTable, text, varchar, vector } from 'drizzle-orm/pg-core';
-import { resources } from './resources';
+import { documents } from './documents';
 
 export const embeddings = pgTable(
   'embeddings',
@@ -9,7 +9,7 @@ export const embeddings = pgTable(
       .primaryKey()
       .$defaultFn(() => generateId()),
     resourceId: varchar('resource_id', { length: 191 }).references(
-      () => resources.id,
+      () => documents.id,
       { onDelete: 'cascade' },
     ),
     content: text('content').notNull(),
