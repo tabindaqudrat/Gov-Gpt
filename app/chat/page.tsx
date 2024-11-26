@@ -12,7 +12,9 @@ import {
   Volume2,
   Paperclip,
   Mic,
-  CornerDownLeft
+  CornerDownLeft,
+  Bot,
+  User
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -29,7 +31,7 @@ import remarkGfm from "remark-gfm";
 const ChatAiIcons = [
   { icon: CopyIcon, label: "Copy" },
   { icon: RefreshCcw, label: "Refresh" },
-  { icon: Volume2, label: "Volume" },
+  // { icon: Volume2, label: "Volume" },
 ];
 
 export default function ChatPage() {
@@ -98,7 +100,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -110,12 +112,15 @@ export default function ChatPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container flex-1 py-4">
+      <div className="container flex-1 py-2 sm:py-4 overflow-hidden">
         <div className="grid h-full gap-4 lg:grid-cols-[1fr_300px]">
           {/* Chat Section */}
-          <div className="flex flex-col space-y-4">
-            <Card className="flex-1">
-              <ChatMessageList ref={messagesRef}>
+          <div className="flex flex-col space-y-4 h-full">
+            <Card className="flex-1 overflow-hidden">
+              <ChatMessageList 
+                ref={messagesRef}
+                className="h-[calc(100vh-11rem)] sm:h-[calc(100vh-13rem)] overflow-y-auto"
+              >
                 {messages.map((message, index) => (
                   <ChatBubble
                     key={message.id}
@@ -123,8 +128,17 @@ export default function ChatPage() {
                     layout={message.role === "assistant" ? "ai" : undefined}
                   >
                     <ChatBubbleAvatar
-                      src={message.role === "assistant" ? "/ai-avatar.png" : "/user-avatar.png"}
-                      fallback={message.role === "assistant" ? "AI" : "ME"}
+                      className={cn(
+                        "flex items-center justify-center",
+                        message.role === "assistant" 
+                          ? "bg-primary/10 border border-primary/20 text-primary"
+                          : "bg-muted/50 border border-muted text-muted-foreground"
+                      )}
+                      fallback={
+                        message.role === "assistant" 
+                          ? "AI"
+                          : "User"
+                      }
                     />
                     <ChatBubbleMessage>
                       <Markdown remarkPlugins={[remarkGfm]}>
@@ -167,23 +181,21 @@ export default function ChatPage() {
               <form
                 ref={formRef}
                 onSubmit={onSubmit}
-                className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
+                className="relative flex flex-col rounded-xl border bg-background"
               >
                 <ChatInput
                   value={input}
                   onChange={handleInputChange}
                   placeholder="Ask about Pakistan's constitution, election laws, or parliamentary proceedings..."
-                  className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+                  className="min-h-12 resize-none rounded-xl bg-transparent border-0 p-2 sm:p-3 shadow-none focus-visible:ring-0"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      formRef.current?.requestSubmit();
+                    }
+                  }}
                 />
-                <div className="flex items-center p-3 pt-0">
-                  <Button variant="ghost" size="icon">
-                    <Paperclip className="size-4" />
-                    <span className="sr-only">Attach file</span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Mic className="size-4" />
-                    <span className="sr-only">Use Microphone</span>
-                  </Button>
+                <div className="flex items-center px-2 sm:px-3 pb-2 sm:pb-3">
                   <Button
                     disabled={!input || isLoading}
                     type="submit"
@@ -199,7 +211,7 @@ export default function ChatPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="hidden lg:flex flex-col space-y-4">
+          <div className="hidden lg:flex flex-col space-y-4 h-full overflow-y-auto">
             <Card className="p-4">
               <h2 className="font-semibold mb-2">About Numainda</h2>
               <p className="text-sm text-muted-foreground">

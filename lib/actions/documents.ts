@@ -4,8 +4,10 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { documents, insertDocumentSchema } from '@/lib/db/schema/documents';
 import { db } from '../db';
-import { generateEmbeddings } from '../ai/embedding';
+import { generateEmbeddings, generateProceedingSummary } from '../ai/embedding';
 import { embeddings as embeddingsTable } from '../db/schema/embeddings';
+import { createProceeding } from "../proceedings";
+import { nanoid } from 'nanoid';
 
 // Helper function to detect section headers
 function detectSection(content: string): string | null {
@@ -57,82 +59,116 @@ interface ChunkMetadata {
   timestamp: string | null;
 }
 
+async function extractTextFromPDF(file: File): Promise<string> {
+  const blob = new Blob([await file.arrayBuffer()]);
+  const loader = new PDFLoader(blob, {
+    splitPages: true,
+    parsedItemSeparator: '\n',
+  });
+  
+  const docs = await loader.load();
+  return docs.map(d => d.pageContent).join('\n');
+}
+
+async function createDocument({ title, type, content, originalFileName }: {
+  title: string;
+  type: string;
+  content: string;
+  originalFileName: string;
+}) {
+  // Store the full document
+  const [document] = await db
+    .insert(documents)
+    .values({
+      title,
+      type,
+      content,
+      originalFileName,
+    })
+    .returning();
+
+  // Split content into chunks
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1500,
+    chunkOverlap: 300,
+    separators: ["\n\n", "\n", ".", "!", "?", ",", " ", ""],
+    keepSeparator: true,
+  });
+
+  const chunks = await splitter.createDocuments([content]);
+
+  // Process chunks with metadata
+  const embeddingsArray = await Promise.all(
+    chunks.map(chunk => generateEmbeddings({
+      pageContent: chunk.pageContent,
+      metadata: {
+        pageNumber: chunk.metadata.pageNumber || 1,
+        section: detectSection(chunk.pageContent),
+        timestamp: detectTimestamp(chunk.pageContent),
+      } as ChunkMetadata
+    }))
+  );
+
+  // Store embeddings with metadata
+  await db.insert(embeddingsTable).values(
+    embeddingsArray.flat().map(({ embedding, content, metadata }) => ({
+      id: nanoid(),
+      resourceId: document.id,
+      embedding,
+      content,
+      metadata
+    }))
+  );
+
+  return document;
+}
+
 export const uploadDocument = async (
   formData: FormData
-): Promise<{ success: boolean; message: string }> => {
+): Promise<{ success: boolean; message: string; document?: any }> => {
   try {
     const file = formData.get('file') as File;
-    const type = formData.get('type') as string;
     const title = formData.get('title') as string;
-
-    if (!file || !type || !title) {
-      return { 
-        success: false, 
-        message: 'Missing required fields' 
-      };
-    }
-
-    // Load and parse PDF
-    const blob = new Blob([await file.arrayBuffer()]);
-    const loader = new PDFLoader(blob, {
-      splitPages: true,
-      parsedItemSeparator: '\n',
-    });
+    const type = formData.get('type') as string;
     
-    const docs = await loader.load();
-    
-    // Use a more sophisticated text splitter
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1500,
-      chunkOverlap: 300,
-      separators: ["\n\n", "\n", ".", "!", "?", ",", " ", ""],
-      keepSeparator: true,
+    // Extract text from PDF
+    const text = await extractTextFromPDF(file);
+
+    // Create document first
+    const document = await createDocument({
+      title,
+      type,
+      content: text,
+      originalFileName: file.name,
     });
 
-    const chunks = await splitter.splitDocuments(docs);
-
-    // Store the full document content
-    const [document] = await db
-      .insert(documents)
-      .values({
+    // If it's a parliamentary bulletin, only create the summary
+    if (type === 'parliamentary_bulletin') {
+      // Get the date from the bulletin
+      const date = new Date(); // This should be extracted from the bulletin
+      
+      // Only generate summary, don't create embeddings again
+      const summary = await generateProceedingSummary(text);
+      
+      // Save the proceeding with its summary
+      await createProceeding({
         title,
-        type,
-        content: docs.map(d => d.pageContent).join('\n'),
-        originalFileName: file.name,
-      })
-      .returning();
-
-    // Process chunks with metadata
-    const embeddingsArray = await Promise.all(
-      chunks.map(chunk => generateEmbeddings({
-        pageContent: chunk.pageContent,
-        metadata: {
-          pageNumber: chunk.metadata.pageNumber,
-          section: detectSection(chunk.pageContent),
-          timestamp: detectTimestamp(chunk.pageContent),
-        } as ChunkMetadata
-      }))
-    );
-
-    // Store embeddings with metadata
-    await db.insert(embeddingsTable).values(
-      embeddingsArray.flat().map(({ embedding, content, metadata }) => ({
-        resourceId: document.id,
-        embedding,
-        content,
-        metadata
-      }))
-    );
+        date: date.toISOString().split('T')[0],
+        summary,
+        originalText: text,
+      });
+    }
 
     return {
       success: true,
-      message: 'Document successfully uploaded and processed'
+      message: 'Document uploaded successfully',
+      document
     };
   } catch (error) {
     console.error('Error uploading document:', error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error occurred'
+      message: 'Error uploading document: ' + (error as Error).message
     };
   }
 };

@@ -2,34 +2,53 @@ import Link from "next/link"
 import { siteConfig } from "@/config/site"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Book, Voicemail, LandmarkIcon, MessageSquare, Info } from 'lucide-react'
+import { Book, LucideBook, LandmarkIcon, MessageSquare, Info, ScaleIcon } from 'lucide-react'
 
 export default function IndexPage() {
   return (
     <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      <div className="flex max-w-[980px] flex-col items-start gap-2">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          Welcome to Numainda <br className="hidden sm:inline" />
-          Your Legal Knowledge Companion
-        </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground">
-          Explore Pakistan's rich legal and parliamentary heritage with our AI-powered chatbot. 
-          Gain insights into the constitution, election laws, and parliamentary bulletins.
-        </p>
+      <div className="relative h-[400px] sm:h-[300px] rounded-lg overflow-hidden mb-8">
+        <div className="absolute inset-0">
+          <img
+            src="SC-b6-1.jpg"
+            alt="Supreme Court of Pakistan"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-background/90" />
+        </div>
+        <div className="relative z-10 h-full flex max-w-[980px] flex-col justify-center p-4 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
+            Welcome to Numainda <br className="hidden sm:inline" />
+            Your Legal Knowledge Companion
+          </h1>
+          <p className="max-w-[700px] text-base sm:text-lg text-muted-foreground mt-4">
+            Explore Pakistan's rich legal and parliamentary heritage with our AI-powered chatbot. 
+            Gain insights into the constitution, election laws, and parliamentary bulletins.
+          </p>
+        </div>
       </div>
-      <div className="flex gap-4">
+
+      <div className="flex flex-col sm:flex-row gap-4">
         <Link
           href="/chat"
-          className={buttonVariants({ variant: "default" })}
+          className={buttonVariants({ 
+            variant: "default",
+            size: "lg",
+            className: "w-full sm:w-auto"
+          })}
         >
-          <MessageSquare className="mr-2 h-4 w-4" />
+          <MessageSquare className="mr-2 h-6 w-6" />
           Start Chatting
         </Link>
         <Link
           href="/about"
-          className={buttonVariants({ variant: "outline" })}
+          className={buttonVariants({ 
+            variant: "outline",
+            size: "lg",
+            className: "w-full sm:w-auto"
+          })}
         >
-          <Info className="mr-2 h-4 w-4" />
+          <Info className="mr-2 h-6 w-6" />
           Learn More
         </Link>
       </div>
@@ -49,7 +68,7 @@ export default function IndexPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Voicemail className="mr-2 h-5 w-5" />
+              <ScaleIcon className="mr-2 h-5 w-5" />
               Election Laws Demystified
             </CardTitle>
           </CardHeader>

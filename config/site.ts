@@ -1,18 +1,29 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Next.js",
+  name: "Numainda",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "A chatbot that answers questions about Pakistan's constitution, elections act, and parliamentary proceedings.",
   mainNav: [
     {
       title: "Home",
       href: "/",
     },
+    {
+      title: "Chat",
+      href: "/chat",
+    },
+    {
+      title: "About",
+      href: "/about",
+    },
+    {
+      title: "Proceedings",
+      href: "/proceedings",
+    },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    twitter: "https://twitter.com/codeforpakistan",
+    github: "https://github.com/codeforpakistan/numainda-next",
   },
 }

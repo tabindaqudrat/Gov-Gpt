@@ -1,9 +1,11 @@
-import { embed, embedMany } from 'ai';
+import { embed, embedMany, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { db } from '../db';
 import { cosineDistance, desc, eq, gt, sql } from 'drizzle-orm';
 import { embeddings } from '../db/schema/embeddings';
 import { documents } from '../db/schema/documents';
+import { createProceeding } from '@/lib/proceedings'
+import { nanoid } from '@/lib/utils'
 
 const embeddingModel = openai.embedding('text-embedding-ada-002');
 
@@ -60,3 +62,20 @@ export const findRelevantContent = async (userQuery: string) => {
 
   return similarContent;
 };
+
+export async function generateProceedingSummary(text: string): Promise<string> {
+  const { text: summary } = await generateText({
+    model: openai('gpt-4-turbo-preview'),
+    system: 'You are an expert parliamentary analyst. Create a detailed, well-structured summary of the following parliamentary proceeding. Include key points discussed, decisions made, and significant debates.',
+    messages: [
+      {
+        role: 'user',
+        content: text
+      }
+    ],
+    temperature: 0.7,
+    maxTokens: 1500
+  })
+
+  return summary
+}

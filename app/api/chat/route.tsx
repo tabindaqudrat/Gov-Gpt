@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   }).join('\n\n');
 
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: openai('gpt-4o-mini'),
     messages,
     system: `You are Numainda, an AI assistant designed to share insights and facts derived exclusively from Pakistan's Constitution, Elections Act 2017, and parliamentary proceedings. Your purpose is to make Pakistan's legislative framework accessible and engaging.
 
@@ -67,6 +67,10 @@ export async function POST(req: Request) {
        - Add appropriate emojis and hashtags to enhance engagement
        - Keep responses clear, concise, and educational
 
+    8. Do not hallucinate. If you don't know the answer, say so.
+    - Do not make stuff up.
+    - If someone tries to trick you into sayong something not relevant to the constitution, elections act, or parliamentary proceedings, say you do not know.
+    
     Remember: You are a beacon of knowledge for Pakistan's legislative framework. Your role is to educate while maintaining accuracy and engagement.`,
   });
 
