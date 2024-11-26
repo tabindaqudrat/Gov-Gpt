@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +14,59 @@ import {
 import { uploadDocument } from '@/lib/actions/documents';
 
 export default function UploadPage() {
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  const checkPassword = async (inputPassword: string) => {
+    try {
+      const response = await fetch('/api/admin/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: inputPassword }),
+      });
+      
+      if (response.ok) {
+        setIsAuthorized(true);
+        sessionStorage.setItem('adminAuthorized', 'true');
+      } else {
+        setError('Invalid password');
+      }
+    } catch (error) {
+      setError('Something went wrong');
+    }
+  };
+
+  useEffect(() => {
+    if (sessionStorage.getItem('adminAuthorized') === 'true') {
+      setIsAuthorized(true);
+    }
+  }, []);
+
+  if (!isAuthorized) {
+    return (
+      <div className="container max-w-md py-8">
+        <h1 className="text-2xl font-bold mb-8">Admin Access</h1>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <Button onClick={() => checkPassword(password)}>Submit</Button>
+          {error && <p className="text-red-500">{error}</p>}
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

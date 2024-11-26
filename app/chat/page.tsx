@@ -136,8 +136,8 @@ export default function ChatPage() {
                       )}
                       fallback={
                         message.role === "assistant" 
-                          ? "AI"
-                          : "User"
+                          ? <Bot className="h-4 w-4" />
+                          : <User className="h-4 w-4" />
                       }
                     />
                     <ChatBubbleMessage>

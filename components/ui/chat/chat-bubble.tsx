@@ -56,17 +56,19 @@ ChatBubble.displayName = "ChatBubble";
 // ChatBubbleAvatar
 interface ChatBubbleAvatarProps {
   src?: string;
-  fallback?: string;
+  fallback?: string | React.ReactNode;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const ChatBubbleAvatar: React.FC<ChatBubbleAvatarProps> = ({
   src,
   fallback,
   className,
+  children
 }) => (
   <Avatar className={className}>
-    <AvatarImage src={src} alt="Avatar" />
+    {children || <AvatarImage src={src} alt="Avatar" />}
     <AvatarFallback>{fallback}</AvatarFallback>
   </Avatar>
 );
