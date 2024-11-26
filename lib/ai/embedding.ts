@@ -27,6 +27,7 @@ export const findRelevantContent = async (userQuery: string) => {
     pageContent: userQuery,
     metadata: { pageNumber: 1 }
   });
+  
   const similarity = sql<number>`1 - (${cosineDistance(
     embeddings.embedding,
     userQueryEmbedded[0].embedding,
@@ -39,12 +40,23 @@ export const findRelevantContent = async (userQuery: string) => {
       similarity,
       documentTitle: documents.title,
       documentType: documents.type,
+      metadata: embeddings.metadata,
+      // Add page number and section info if available
+      pageNumber: sql<number>`(${embeddings.metadata}->>'pageNumber')::int`,
+      section: sql<string>`${embeddings.metadata}->>'section'`,
     })
     .from(embeddings)
     .leftJoin(documents, eq(embeddings.resourceId, documents.id))
-    .where(gt(similarity, 0.5))
-    .orderBy(t => desc(t.similarity))
-    .limit(4);
+    .where(gt(similarity, 0.75)) // Increased similarity threshold
+    .orderBy(desc(similarity))
+    .limit(6); // Increased limit for more context
+
+  // Debug log
+  console.log('Found relevant content:', {
+    query: userQuery,
+    matches: similarContent.length,
+    topSimilarity: similarContent[0]?.similarity,
+  });
 
   return similarContent;
 };
