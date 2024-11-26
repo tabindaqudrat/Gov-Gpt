@@ -3,6 +3,8 @@ import { text, varchar, timestamp, pgTable } from "drizzle-orm/pg-core";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { nanoid } from "@/lib/utils";
+import { relations } from 'drizzle-orm';
+import { embeddings } from "./embeddings";
 
 export const documents = pgTable("documents", {
   id: varchar("id", { length: 191 })
@@ -29,3 +31,7 @@ export const insertDocumentSchema = createSelectSchema(documents)
   });
 
 export type NewDocumentParams = z.infer<typeof insertDocumentSchema>;
+
+export const documentsRelations = relations(documents, ({ many }) => ({
+  embeddings: many(embeddings)
+}));
