@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import { Bot, User } from 'lucide-react';
 import ReactMarkdown from "react-markdown";
 
 export interface ChatMessageProps {
@@ -12,26 +12,26 @@ export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-4 rounded-lg p-4",
-        role === "user" ? "bg-muted/50" : "bg-background"
+        "flex items-start gap-4 rounded-lg p-4",
+        role === "user" ? "bg-muted/50" : "bg-background border"
       )}
     >
       <div className={cn(
-        "flex size-8 shrink-0 select-none items-center justify-center rounded-md border shadow",
-        role === "assistant" && "bg-primary/10"
+        "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow",
+        role === "assistant" ? "bg-primary/10" : "bg-background"
       )}>
         {role === "user" ? (
-          <Icons.sun className="size-4" />
+          <User className="h-4 w-4" />
         ) : (
-          <Icons.moon className="size-4" /> 
+          <Bot className="h-4 w-4" />
         )}
       </div>
-      <div className="flex-1 space-y-2">
+      <div className="flex-1 space-y-2 overflow-hidden break-words">
         {isLoading ? (
           <div className="flex items-center space-x-2">
-            <div className="size-2 animate-bounce rounded-full bg-zinc-300 [animation-delay:-0.3s]" />
-            <div className="size-2 animate-bounce rounded-full bg-zinc-300 [animation-delay:-0.15s]" />
-            <div className="size-2 animate-bounce rounded-full bg-zinc-300" />
+            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-300 [animation-delay:-0.3s]" />
+            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-300 [animation-delay:-0.15s]" />
+            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-300" />
           </div>
         ) : (
           <ReactMarkdown
@@ -44,3 +44,4 @@ export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
     </div>
   );
 }
+
