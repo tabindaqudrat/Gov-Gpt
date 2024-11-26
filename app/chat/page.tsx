@@ -186,7 +186,7 @@ export default function ChatPage() {
                 <ChatInput
                   value={input}
                   onChange={handleInputChange}
-                  placeholder="Ask about Pakistan's constitution, election laws, or parliamentary proceedings..."
+                  placeholder="Ask about Pakistan&apos;s constitution, election laws, or parliamentary proceedings..."
                   className="min-h-12 resize-none rounded-xl bg-transparent border-0 p-2 sm:p-3 shadow-none focus-visible:ring-0"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {

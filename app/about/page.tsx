@@ -20,7 +20,7 @@ export default function AboutPage() {
             Meet Numainda
           </h1>
           <p className="text-xl text-white/80">
-            Your Digital Gateway to Pakistan's Constitution and Legislative Knowledge
+            Your Digital Gateway to Pakistan&apos;s Constitution and Legislative Knowledge
           </p>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Today's Numainda</CardTitle>
+            <CardTitle>Today&apos;s Numainda</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">

@@ -22,7 +22,7 @@ export default function IndexPage() {
             Your Legal Knowledge Companion
           </h1>
           <p className="max-w-[700px] text-base sm:text-lg text-muted-foreground mt-4">
-            Explore Pakistan's rich legal and parliamentary heritage with our AI-powered chatbot. 
+            Explore Pakistan&apos;s rich legal and parliamentary heritage with our AI-powered chatbot. 
             Gain insights into the constitution, election laws, and parliamentary bulletins.
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function IndexPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Dive into the heart of Pakistan's legal framework. Understand the amendments and their impact on our society.</p>
+            <p>Dive into the heart of Pakistan&apos;s legal framework. Understand the amendments and their impact on our society.</p>
           </CardContent>
         </Card>
         <Card>
