@@ -215,7 +215,7 @@ export default function ChatPage() {
             <Card className="p-4">
               <h2 className="font-semibold mb-2">About Numainda</h2>
               <p className="text-sm text-muted-foreground">
-                I am an AI assistant specialized in Pakistan's constitutional and electoral information. 
+                I am an AI assistant specialized in Pakistan&apos;s constitutional and electoral information. 
                 I can help you understand laws, parliamentary proceedings, and election processes.
               </p>
             </Card>
