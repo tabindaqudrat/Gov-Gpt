@@ -19,7 +19,7 @@ export default function IndexPage() {
         <div className="relative z-10 h-full flex max-w-[980px] flex-col justify-center p-4 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
             Welcome to Numainda <br className="hidden sm:inline" />
-            Your Legal Knowledge Companion
+            Your Guide to Pakistan&apos;s Constitution and Laws
           </h1>
           <p className="max-w-[700px] text-base sm:text-lg text-muted-foreground mt-4">
             Explore Pakistan&apos;s rich legal and parliamentary heritage with our AI-powered chatbot. 
