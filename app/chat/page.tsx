@@ -42,7 +42,7 @@ export default function ChatPage() {
   }, [messages]);
 
   return (
-    <div className="flex h-[100dvh] flex-col lg:flex-row touch-manipulation">
+    <div className="flex flex-col lg:flex-row w-full touch-manipulation">
       <MessageThreadsSidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
@@ -50,7 +50,7 @@ export default function ChatPage() {
 
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="h-14 border-b flex items-center px-4">
+        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center px-4">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -64,8 +64,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-2xl mx-auto px-4">
+        <div className="flex flex-col max-w-2xl mx-auto p-4 max-h-full mt-auto overflow-y-auto">
             {messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -90,11 +89,10 @@ export default function ChatPage() {
               </ChatBubble>
             ))}
             <div ref={messagesEndRef} />
-          </div>
         </div>
 
         {/* Input */}
-        <div className="border-t p-4">
+        <div className="p-4">
           <div className="max-w-2xl mx-auto">
             <form
               onSubmit={(e) => {
@@ -108,7 +106,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Message Numainda..."
-                className="w-full rounded-lg border px-3 py-2 text-base"
+                className="w-full rounded-lg border px-3 py-2 text-base bg-slate-500/10"
                 style={{ fontSize: '16px' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {

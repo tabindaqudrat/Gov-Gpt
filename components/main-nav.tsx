@@ -19,7 +19,7 @@ export function MainNav({ items }: MainNavProps) {
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center">
         <Link href="/" className="flex items-center space-x-2">
-          <img src="/Numainda no BG Logo.png" alt="Numainda Logo" className="h-6 w-6" />
+          <img src="/logo-numainda.svg" alt="Numainda Logo" className="h-8 w-8" />
           <span className="inline-block font-bold">{siteConfig.name}</span>
         </Link>
       </div>
