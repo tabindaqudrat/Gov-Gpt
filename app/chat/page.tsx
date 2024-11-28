@@ -48,9 +48,9 @@ export default function ChatPage() {
         onClose={() => setIsSidebarOpen(false)} 
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center px-4">
+        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center px-4 flex-none">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -64,7 +64,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex flex-col max-w-2xl mx-auto p-4 max-h-full mt-auto overflow-y-auto">
+        <div className="flex flex-col max-w-2xl mx-auto p-4 mt-auto">
             {messages.map((message) => (
               <ChatBubble
                 key={message.id}
