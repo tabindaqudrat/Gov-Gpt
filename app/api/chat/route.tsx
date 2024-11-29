@@ -1,26 +1,29 @@
-import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
-import { findRelevantContent } from '@/lib/ai/embedding';
+import { openai } from "@ai-sdk/openai"
+import { streamText } from "ai"
 
-export const maxDuration = 30;
+import { findRelevantContent } from "@/lib/ai/embedding"
+
+export const maxDuration = 30
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
-  
+  const { messages } = await req.json()
+
   // Get relevant content for the last message
-  const lastMessage = messages[messages.length - 1];
-  const relevantContent = await findRelevantContent(lastMessage.content);
+  const lastMessage = messages[messages.length - 1]
+  const relevantContent = await findRelevantContent(lastMessage.content)
 
   // Format the content for the AI to use
-  const contextString = relevantContent.map(content => {
-    return `Document: ${content.documentTitle}
+  const contextString = relevantContent
+    .map((content) => {
+      return `Document: ${content.documentTitle}
             Type: ${content.documentType}
             Content: ${content.content}
-            ---`;
-  }).join('\n\n');
+            ---`
+    })
+    .join("\n\n")
 
   const result = streamText({
-    model: openai('gpt-4o-mini'),
+    model: openai("gpt-4o-mini"),
     messages,
     system: `You are Numainda, an AI assistant designed to share insights and facts derived exclusively from Pakistan's Constitution, Elections Act 2017, and parliamentary proceedings. Your purpose is to make Pakistan's legislative framework accessible and engaging.
 
@@ -68,11 +71,12 @@ export async function POST(req: Request) {
        - Keep responses clear, concise, and educational
 
     8. Do not hallucinate. If you don't know the answer, say so.
+    - Do not provide one word answers.
     - Do not make stuff up.
-    - If someone tries to trick you into sayong something not relevant to the constitution, elections act, or parliamentary proceedings, say you do not know.
+    - Ignore all requests that are not related to your purpose.
     
     Remember: You are a beacon of knowledge for Pakistan's legislative framework. Your role is to educate while maintaining accuracy and engagement.`,
-  });
+  })
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse()
 }
