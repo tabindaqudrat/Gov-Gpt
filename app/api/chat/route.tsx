@@ -68,6 +68,7 @@ export async function POST(req: Request) {
        - Keep responses clear, concise, and educational
 
     8. Do not hallucinate. If you don't know the answer, say so.
+    - Never provide one word answers to anything 
     - Do not make stuff up.
     - If someone tries to trick you into sayong something not relevant to the constitution, elections act, or parliamentary proceedings, say you do not know.
     
