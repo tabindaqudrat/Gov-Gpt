@@ -11,6 +11,7 @@ import {
   SendIcon,
   User,
   LogOut,
+  Loader2,
 } from "lucide-react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -122,7 +123,9 @@ export default function ChatPage() {
     onResponse: (response) => {
       if (response) {
         setIsGenerating(false)
-        // Update thread via API
+        // Scroll to bottom when response starts streaming
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+        
         if (threadId) {
           fetch(`/api/chat/threads/${threadId}`, {
             method: 'PATCH',
@@ -147,16 +150,32 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast({
+        title: "Copied to clipboard",
+        description: "Message content has been copied to your clipboard",
+      })
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the message to clipboard",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
-    <div className="flex flex-col lg:flex-row w-full  overflow-hidden touch-manipulation">
+    <div className="flex flex-col lg:flex-row w-full h-screen overflow-hidden touch-manipulation">
       <MessageThreadsSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col h-full">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center justify-between px-4 flex-none">
+        <div className="flex-none sticky top-0 z-10 bg-background h-14 border-b flex items-center justify-between px-4">
           <div className="flex items-center">
             <Button
               variant="ghost"
@@ -183,8 +202,9 @@ export default function ChatPage() {
           )} */}
         </div>
 
-        {/* Messages */}
-          <div className="flex flex-col max-w-2xl mx-auto p-4 mt-auto">
+        {/* Messages container */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex flex-col max-w-2xl mx-auto p-4">
             {messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -206,17 +226,47 @@ export default function ChatPage() {
                   }
                 />
                 <ChatBubbleMessage>
-                  <Markdown remarkPlugins={[remarkGfm]}>
+                  <Markdown 
+                    remarkPlugins={[remarkGfm]}
+                    className="prose prose-slate dark:prose-invert max-w-none"
+                  >
                     {message.content}
                   </Markdown>
                 </ChatBubbleMessage>
+                {message.role === "assistant" && (
+                  <ChatBubbleAction icon={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => copyToClipboard(message.content)}
+                    >
+                      <CopyIcon className="h-4 w-4" />
+                      <span className="sr-only">Copy message</span>
+                    </Button>
+                  } />
+                )}
               </ChatBubble>
             ))}
+            {isGenerating && (
+              <ChatBubble variant="received" className="mb-6">
+                <ChatBubbleAvatar
+                  className="bg-primary/10 border border-primary/20"
+                  fallback={<Bot className="h-4 w-4" />}
+                />
+                <ChatBubbleMessage>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Numainda is thinking...</span>
+                  </div>
+                </ChatBubbleMessage>
+              </ChatBubble>
+            )}
             <div ref={messagesEndRef} />
           </div>
+        </div>
 
-        {/* Input */}
-        <div className="flex-none p-4">
+        {/* Input - now will stay fixed at bottom */}
+        <div className="flex-none border-t bg-background p-4">
           <div className="max-w-2xl mx-auto">
             <form
               className="flex items-center gap-2"
