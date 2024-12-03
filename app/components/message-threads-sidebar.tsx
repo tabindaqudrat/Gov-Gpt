@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Plus, X } from 'lucide-react';
+import { MessageCircle, Plus, X, Trash2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { PehchanLoginButton } from "@/components/pehchan-button";
@@ -72,6 +72,33 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
     }
   }, [isAuthenticated])
 
+  const handleDeleteThread = async (threadId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the thread selection
+    
+    const pehchanId = localStorage.getItem('pehchan_id');
+    if (!pehchanId) return;
+
+    try {
+      const response = await fetch(`/api/chat/threads/${threadId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pehchanId })
+      });
+
+      if (response.ok) {
+        // Remove thread from local state
+        setThreads(threads.filter(thread => thread.id !== threadId));
+        // If we're currently viewing this thread, redirect to new chat
+        const currentThreadId = new URLSearchParams(window.location.search).get('thread');
+        if (currentThreadId === threadId) {
+          router.push('/chat');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete thread:', error);
+    }
+  };
+
   return (
     <>
       {isOpen && (
@@ -113,7 +140,7 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
                   <Button
                     key={thread.id}
                     variant="ghost"
-                    className="w-full justify-start text-left h-auto py-3 px-3 mb-1"
+                    className="w-full justify-start text-left h-auto py-3 px-3 mb-1 group"
                     onClick={() => {
                       router.push(`/chat?thread=${thread.id}`)
                       onClose?.()
@@ -126,6 +153,14 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
                         {thread.messages[thread.messages.length - 1]?.content.slice(0, 50) || 'New chat'}...
                       </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => handleDeleteThread(thread.id, e)}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
                   </Button>
                 ))}
               </div>

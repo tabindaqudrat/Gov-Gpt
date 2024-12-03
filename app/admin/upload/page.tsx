@@ -19,6 +19,7 @@ export default function UploadPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [documentType, setDocumentType] = useState<string>('');
 
   const checkPassword = async (inputPassword: string) => {
     try {
@@ -92,7 +93,11 @@ export default function UploadPage() {
 
         <div className="space-y-2">
           <Label htmlFor="type">Document Type</Label>
-          <Select name="type" required>
+          <Select 
+            name="type" 
+            required
+            onValueChange={(value) => setDocumentType(value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select document type" />
             </SelectTrigger>
@@ -103,6 +108,18 @@ export default function UploadPage() {
             </SelectContent>
           </Select>
         </div>
+
+        {documentType === 'parliamentary_bulletin' && (
+          <div className="space-y-2">
+            <Label htmlFor="date">Bulletin Date</Label>
+            <Input 
+              id="date" 
+              name="date" 
+              type="date" 
+              required={documentType === 'parliamentary_bulletin'}
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="file">PDF File</Label>

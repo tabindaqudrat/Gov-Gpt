@@ -61,4 +61,35 @@ export async function PATCH(
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update thread' }, { status: 500 })
   }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { pehchanId } = await request.json()
+
+  if (!pehchanId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const [deletedThread] = await db
+      .delete(chatThreads)
+      .where(
+        and(
+          eq(chatThreads.id, parseInt(params.id)),
+          eq(chatThreads.pehchanId, pehchanId)
+        )
+      )
+      .returning()
+
+    return NextResponse.json(deletedThread)
+  } catch (error) {
+    console.error('Error deleting thread:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete thread' },
+      { status: 500 }
+    )
+  }
 } 

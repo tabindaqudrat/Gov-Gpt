@@ -42,6 +42,11 @@ export default function ChatPage() {
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const [threadId, setThreadId] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     const accessToken = localStorage.getItem('access_token')
@@ -90,7 +95,7 @@ export default function ChatPage() {
     }
 
     loadOrCreateThread()
-  }, [isAuthenticated])
+  }, [isAuthenticated, searchParams])
 
   const handleLogout = () => {
     localStorage.clear()
@@ -189,23 +194,13 @@ export default function ChatPage() {
             <span className="font-semibold">Numainda Chat</span>
           </div>
           
-          {/* {isAuthenticated && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          )} */}
+  
         </div>
 
         {/* Messages container */}
         <div className="flex-1 min-h-0 overflow-y-auto">
           <div className="flex flex-col max-w-2xl mx-auto p-4">
-            {messages.map((message) => (
+            {isClient && messages.map((message) => (
               <ChatBubble
                 key={message.id}
                 variant={message.role === "user" ? "sent" : "received"}
@@ -233,7 +228,7 @@ export default function ChatPage() {
                     {message.content}
                   </Markdown>
                 </ChatBubbleMessage>
-                {message.role === "assistant" && (
+                {message.role === "assistant" && isClient && (
                   <ChatBubbleAction icon={
                     <Button
                       variant="ghost"
@@ -247,7 +242,7 @@ export default function ChatPage() {
                 )}
               </ChatBubble>
             ))}
-            {isGenerating && (
+            {isGenerating && isClient && (
               <ChatBubble variant="received" className="mb-6">
                 <ChatBubbleAvatar
                   className="bg-primary/10 border border-primary/20"
