@@ -19,6 +19,7 @@ export default function UploadPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [documentType, setDocumentType] = useState<string>('');
 
   const checkPassword = async (inputPassword: string) => {
     try {
@@ -50,7 +51,7 @@ export default function UploadPage() {
   if (!isAuthorized) {
     return (
       <div className="container max-w-md py-8">
-        <h1 className="text-2xl font-bold mb-8">Admin Access</h1>
+        <h1 className="mb-8 text-2xl font-bold">Admin Access</h1>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -82,7 +83,7 @@ export default function UploadPage() {
 
   return (
     <div className="container max-w-2xl py-8">
-      <h1 className="text-2xl font-bold mb-8">Upload Document</h1>
+      <h1 className="mb-8 text-2xl font-bold">Upload Document</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
@@ -92,7 +93,11 @@ export default function UploadPage() {
 
         <div className="space-y-2">
           <Label htmlFor="type">Document Type</Label>
-          <Select name="type" required>
+          <Select 
+            name="type" 
+            required
+            onValueChange={(value) => setDocumentType(value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select document type" />
             </SelectTrigger>
@@ -103,6 +108,18 @@ export default function UploadPage() {
             </SelectContent>
           </Select>
         </div>
+
+        {documentType === 'parliamentary_bulletin' && (
+          <div className="space-y-2">
+            <Label htmlFor="date">Bulletin Date</Label>
+            <Input 
+              id="date" 
+              name="date" 
+              type="date" 
+              required={documentType === 'parliamentary_bulletin'}
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="file">PDF File</Label>

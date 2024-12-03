@@ -130,6 +130,7 @@ export const uploadDocument = async (
     const file = formData.get('file') as File;
     const title = formData.get('title') as string;
     const type = formData.get('type') as string;
+    const bulletinDate = formData.get('date') as string;
     
     // Extract text from PDF
     const text = await extractTextFromPDF(file);
@@ -142,18 +143,17 @@ export const uploadDocument = async (
       originalFileName: file.name,
     });
 
-    // If it's a parliamentary bulletin, only create the summary
+    // If it's a parliamentary bulletin, create the summary
     if (type === 'parliamentary_bulletin') {
-      // Get the date from the bulletin
-      const date = new Date(); // This should be extracted from the bulletin
+      if (!bulletinDate) {
+        throw new Error('Bulletin date is required');
+      }
       
-      // Only generate summary, don't create embeddings again
       const summary = await generateProceedingSummary(text);
       
-      // Save the proceeding with its summary
       await createProceeding({
         title,
-        date: date.toISOString().split('T')[0],
+        date: bulletinDate, // Use the date from the form input
         summary,
         originalText: text,
       });

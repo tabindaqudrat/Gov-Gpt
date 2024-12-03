@@ -19,17 +19,17 @@ export default async function ProceedingPage({
 
   return (
     <div className="container mx-auto py-8">
-      <div className="max-w-3xl mx-auto">
-        <Link href="/proceedings" className="flex items-center gap-2 mb-6">
+      <div className="mx-auto max-w-3xl">
+        <Link href="/proceedings" className="mb-6 flex items-center gap-2">
           <ArrowLeft className="size-4" />
         </Link>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">{proceeding.title}</h1>
+          <h1 className="mb-2 text-3xl font-bold">{proceeding.title}</h1>
           <p>{format(new Date(proceeding.date), 'MMMM d, yyyy')}</p>
         </div>
         
         <div className="prose max-w-none">
-          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+          <h2 className="mb-4 text-xl font-semibold">Summary</h2>
           <ReactMarkdown>{proceeding.summary}</ReactMarkdown>
         </div>
       </div>

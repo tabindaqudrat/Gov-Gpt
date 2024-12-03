@@ -10,11 +10,14 @@ import {
   RefreshCcw,
   SendIcon,
   User,
+  LogOut,
+  Loader2,
 } from "lucide-react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   ChatBubble,
@@ -24,6 +27,7 @@ import {
 } from "@/components/ui/chat/chat-bubble"
 import { ChatInput } from "@/components/ui/chat/chat-input"
 import { MessageThreadsSidebar } from "@/app/components/message-threads-sidebar"
+import { PehchanLoginButton } from "@/components/pehchan-button"
 
 const ChatAiIcons = [
   { icon: CopyIcon, label: "Copy" },
@@ -33,6 +37,75 @@ const ChatAiIcons = [
 export default function ChatPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const [threadId, setThreadId] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('access_token')
+    console.log('Auth check - access_token:', accessToken)
+    setIsAuthenticated(!!accessToken)
+  }, [])
+
+  useEffect(() => {
+    const loadOrCreateThread = async () => {
+      console.log('loadOrCreateThread called, isAuthenticated:', isAuthenticated)
+      if (!isAuthenticated) return
+      
+      const pehchanId = localStorage.getItem('pehchan_id')
+      console.log('Pehchan ID:', pehchanId)
+      if (!pehchanId) return
+
+      const threadIdParam = searchParams.get('thread')
+      if (threadIdParam) {
+        console.log('Loading thread:', threadIdParam)
+        const response = await fetch(`/api/chat/threads/${threadIdParam}?pehchan_id=${pehchanId}`)
+        const thread = await response.json()
+        console.log('Loaded thread:', thread)
+
+        if (thread) {
+          setThreadId(thread.id)
+          setMessages(thread.messages)
+        }
+      } else {
+        console.log('Creating new thread')
+        const response = await fetch('/api/chat/threads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            pehchanId,
+            title: 'New Chat'
+          })
+        })
+        const thread = await response.json()
+        console.log('Created thread:', thread)
+
+        if (thread) {
+          setThreadId(thread.id)
+          router.push(`/chat?thread=${thread.id}`)
+        }
+      }
+    }
+
+    loadOrCreateThread()
+  }, [isAuthenticated, searchParams])
+
+  const handleLogout = () => {
+    localStorage.clear()
+    window.dispatchEvent(new Event('localStorageChange'))
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out"
+    })
+    router.refresh()
+  }
 
   const {
     messages,
@@ -41,6 +114,7 @@ export default function ChatPage() {
     handleSubmit,
     isLoading,
     reload,
+    setMessages,
   } = useChat({
     api: "/api/chat",
     initialMessages: [
@@ -52,7 +126,23 @@ export default function ChatPage() {
       },
     ],
     onResponse: (response) => {
-      if (response) setIsGenerating(false)
+      if (response) {
+        setIsGenerating(false)
+        // Scroll to bottom when response starts streaming
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+        
+        if (threadId) {
+          fetch(`/api/chat/threads/${threadId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages,
+              title: messages[1]?.content.slice(0, 100) || 'New Chat',
+              pehchanId: localStorage.getItem('pehchan_id')
+            })
+          })
+        }
+      }
     },
     onError: (error) => {
       if (error) setIsGenerating(false)
@@ -65,63 +155,114 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast({
+        title: "Copied to clipboard",
+        description: "Message content has been copied to your clipboard",
+      })
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the message to clipboard",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
-    <div className="flex flex-col lg:flex-row w-full touch-manipulation">
+    <div className="flex h-screen w-full touch-manipulation flex-col overflow-hidden lg:flex-row">
       <MessageThreadsSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex min-h-0 flex-1 flex-col">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center px-4 flex-none">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden mr-2"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <MessageSquare className="h-5 w-5 mr-2" />
-          <span className="font-semibold">Numainda Chat</span>
-        </div>
-
-        {/* Messages */}
-        <div className="flex flex-col max-w-2xl mx-auto p-4 mt-auto">
-          {messages.map((message) => (
-            <ChatBubble
-              key={message.id}
-              variant={message.role === "user" ? "sent" : "received"}
-              className="mb-6"
+        <div className="sticky top-0 z-10 flex h-14 flex-none items-center justify-between border-b bg-background px-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(true)}
+              className="mr-2 lg:hidden"
             >
-              <ChatBubbleAvatar
-                className={
-                  message.role === "assistant"
-                    ? "bg-primary/10 border border-primary/20"
-                    : "bg-muted"
-                }
-                fallback={
-                  message.role === "assistant" ? (
-                    <Bot className="h-4 w-4" />
-                  ) : (
-                    <User className="h-4 w-4" />
-                  )
-                }
-              />
-              <ChatBubbleMessage>
-                <Markdown remarkPlugins={[remarkGfm]}>
-                  {message.content}
-                </Markdown>
-              </ChatBubbleMessage>
-            </ChatBubble>
-          ))}
-          <div ref={messagesEndRef} />
+              <Menu className="size-5" />
+            </Button>
+            <MessageSquare className="mr-2 size-5" />
+            <span className="font-semibold">Numainda Chat</span>
+          </div>
+          
+  
         </div>
 
-        {/* Input */}
-        <div className="p-4">
-          <div className="max-w-2xl mx-auto">
+        {/* Messages container */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex max-w-2xl flex-col p-4">
+            {isClient && messages.map((message) => (
+              <ChatBubble
+                key={message.id}
+                variant={message.role === "user" ? "sent" : "received"}
+                className="mb-6"
+              >
+                <ChatBubbleAvatar
+                  className={
+                    message.role === "assistant"
+                      ? "border border-primary/20 bg-primary/10"
+                      : "bg-muted"
+                  }
+                  fallback={
+                    message.role === "assistant" ? (
+                      <Bot className="size-4" />
+                    ) : (
+                      <User className="size-4" />
+                    )
+                  }
+                />
+                <ChatBubbleMessage>
+                  <Markdown 
+                    remarkPlugins={[remarkGfm]}
+                    className="prose prose-slate dark:prose-invert max-w-none"
+                  >
+                    {message.content}
+                  </Markdown>
+                </ChatBubbleMessage>
+                {message.role === "assistant" && isClient && (
+                  <ChatBubbleAction icon={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => copyToClipboard(message.content)}
+                    >
+                      <CopyIcon className="size-4" />
+                      <span className="sr-only">Copy message</span>
+                    </Button>
+                  } />
+                )}
+              </ChatBubble>
+            ))}
+            {isGenerating && isClient && (
+              <ChatBubble variant="received" className="mb-6">
+                <ChatBubbleAvatar
+                  className="border border-primary/20 bg-primary/10"
+                  fallback={<Bot className="size-4" />}
+                />
+                <ChatBubbleMessage>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="size-4 animate-spin" />
+                    <span className="text-sm">Numainda is thinking...</span>
+                  </div>
+                </ChatBubbleMessage>
+              </ChatBubble>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* Input - now will stay fixed at bottom */}
+        <div className="flex-none border-t bg-background p-4">
+          <div className="mx-auto max-w-2xl">
             <form
               className="flex items-center gap-2"
               onSubmit={(e) => {
@@ -135,7 +276,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Message Numainda..."
-                className="w-full rounded-lg border px-3 py-2 text-base bg-slate-500/10"
+                className="w-full rounded-lg border bg-slate-500/10 px-3 py-2 text-base"
                 style={{ fontSize: "16px" }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {

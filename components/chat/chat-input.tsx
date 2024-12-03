@@ -53,7 +53,7 @@ export function ChatInput({ input, setInput, onSubmit, isLoading }: ChatInputPro
           size="icon"
           disabled={isLoading || input === ""}
         >
-          <Send className="h-4 w-4" />
+          <Send className="size-4" />
           <span className="sr-only">Send message</span>
         </Button>
       </div>

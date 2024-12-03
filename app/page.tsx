@@ -7,28 +7,28 @@ import { Book, LucideBook, LandmarkIcon, MessageSquare, Info, ScaleIcon } from '
 export default function IndexPage() {
   return (
     <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      <div className="relative h-[400px] sm:h-[300px] rounded-lg overflow-hidden mb-8">
+      <div className="relative mb-8 h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
         <div className="absolute inset-0">
           <img
             src="SC-b6-1.jpg"
             alt="Supreme Court of Pakistan"
-            className="w-full h-full object-cover"
+            className="size-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-background/90" />
         </div>
-        <div className="relative z-10 h-full flex max-w-[980px] flex-col justify-center p-4 sm:p-6">
-          <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
+        <div className="relative z-10 flex h-full max-w-[980px] flex-col justify-center p-4 sm:p-6">
+          <h1 className="text-2xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-4xl">
             Welcome to Numainda <br className="hidden sm:inline" />
             Your Guide to Pakistan&apos;s Constitution and Laws
           </h1>
-          <p className="max-w-[700px] text-base sm:text-lg text-muted-foreground mt-4">
+          <p className="mt-4 max-w-[700px] text-base text-muted-foreground sm:text-lg">
             Explore Pakistan&apos;s rich legal and parliamentary heritage with our AI-powered chatbot. 
             Gain insights into the constitution, election laws, and parliamentary bulletins.
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <Link
           href="/chat"
           className={buttonVariants({ 
@@ -37,7 +37,7 @@ export default function IndexPage() {
             className: "w-full sm:w-auto"
           })}
         >
-          <MessageSquare className="mr-2 h-6 w-6" />
+          <MessageSquare className="mr-2 size-6" />
           Start Chatting
         </Link>
         <Link
@@ -48,7 +48,7 @@ export default function IndexPage() {
             className: "w-full sm:w-auto"
           })}
         >
-          <Info className="mr-2 h-6 w-6" />
+          <Info className="mr-2 size-6" />
           Learn More
         </Link>
       </div>
@@ -57,7 +57,7 @@ export default function IndexPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Book className="mr-2 h-5 w-5" />
+              <Book className="mr-2 size-5" />
               Explore the Constitution
             </CardTitle>
           </CardHeader>
@@ -68,7 +68,7 @@ export default function IndexPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <ScaleIcon className="mr-2 h-5 w-5" />
+              <ScaleIcon className="mr-2 size-5" />
               Election Laws Demystified
             </CardTitle>
           </CardHeader>
@@ -79,7 +79,7 @@ export default function IndexPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <LandmarkIcon className="mr-2 h-5 w-5" />
+              <LandmarkIcon className="mr-2 size-5" />
               Parliamentary Insights
             </CardTitle>
           </CardHeader>
@@ -90,8 +90,8 @@ export default function IndexPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4 flex items-center">
-          <Info className="mr-2 h-6 w-6" />
+        <h2 className="mb-4 flex items-center text-2xl font-bold">
+          <Info className="mr-2 size-6" />
           Why We Built Numainda
         </h2>
         <p className="text-muted-foreground">
