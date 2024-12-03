@@ -148,13 +148,13 @@ export default function ChatPage() {
   }, [messages])
 
   return (
-    <div className="flex flex-col lg:flex-row w-full touch-manipulation">
+    <div className="flex flex-col lg:flex-row w-full h-screen overflow-hidden touch-manipulation">
       <MessageThreadsSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col h-full">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center justify-between px-4 flex-none">
           <div className="flex items-center">
@@ -184,39 +184,41 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex flex-col max-w-2xl mx-auto p-4 mt-auto">
-          {messages.map((message) => (
-            <ChatBubble
-              key={message.id}
-              variant={message.role === "user" ? "sent" : "received"}
-              className="mb-6"
-            >
-              <ChatBubbleAvatar
-                className={
-                  message.role === "assistant"
-                    ? "bg-primary/10 border border-primary/20"
-                    : "bg-muted"
-                }
-                fallback={
-                  message.role === "assistant" ? (
-                    <Bot className="h-4 w-4" />
-                  ) : (
-                    <User className="h-4 w-4" />
-                  )
-                }
-              />
-              <ChatBubbleMessage>
-                <Markdown remarkPlugins={[remarkGfm]}>
-                  {message.content}
-                </Markdown>
-              </ChatBubbleMessage>
-            </ChatBubble>
-          ))}
-          <div ref={messagesEndRef} />
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex flex-col max-w-2xl mx-auto p-4">
+            {messages.map((message) => (
+              <ChatBubble
+                key={message.id}
+                variant={message.role === "user" ? "sent" : "received"}
+                className="mb-6"
+              >
+                <ChatBubbleAvatar
+                  className={
+                    message.role === "assistant"
+                      ? "bg-primary/10 border border-primary/20"
+                      : "bg-muted"
+                  }
+                  fallback={
+                    message.role === "assistant" ? (
+                      <Bot className="h-4 w-4" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )
+                  }
+                />
+                <ChatBubbleMessage>
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </Markdown>
+                </ChatBubbleMessage>
+              </ChatBubble>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Input */}
-        <div className="p-4">
+        <div className="flex-none p-4">
           <div className="max-w-2xl mx-auto">
             <form
               className="flex items-center gap-2"
