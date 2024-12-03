@@ -52,6 +52,7 @@ export default function AuthCallback() {
           const userInfo = await userResponse.json()
           console.log('User info:', userInfo)
           localStorage.setItem('user_info', JSON.stringify(userInfo))
+          localStorage.setItem('pehchan_id', userInfo.profile.cnic)
 
           toast({
             title: "Login successful",

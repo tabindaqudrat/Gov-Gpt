@@ -3,19 +3,30 @@ import { MessageCircle, Plus, X } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { PehchanLoginButton } from "@/components/pehchan-button";
+import { useRouter } from 'next/navigation'
 
 interface MessageThreadsSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface ChatThread {
+  id: string
+  title: string
+  created_at: string
+  messages: any[]
+}
+
 export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebarProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [threads, setThreads] = useState<ChatThread[]>([])
+  const router = useRouter()
 
   useEffect(() => {
     // Check initial auth state
     const checkAuth = () => {
       const accessToken = localStorage.getItem('access_token');
+      console.log('Sidebar auth check - access_token:', accessToken)
       setIsAuthenticated(!!accessToken);
     };
 
@@ -40,6 +51,26 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
       window.removeEventListener('localStorageChange', handleCustomStorageChange);
     };
   }, []);
+
+  useEffect(() => {
+    const loadThreads = async () => {
+      console.log('loadThreads called, isAuthenticated:', isAuthenticated)
+      const pehchanId = localStorage.getItem('pehchan_id')
+      console.log('Sidebar - Pehchan ID:', pehchanId)
+      if (!pehchanId) return
+
+      const response = await fetch(`/api/chat/threads?pehchan_id=${pehchanId}`)
+      const threads = await response.json()
+      setThreads(threads)
+    }
+
+    if (isAuthenticated) {
+      loadThreads()
+      // Set up polling for updates
+      const interval = setInterval(loadThreads, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [isAuthenticated])
 
   return (
     <>
@@ -70,17 +101,33 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
             <>
               <div className="flex-1 overflow-y-auto p-2">
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start text-left h-auto py-3 px-3 mb-1"
+                  variant="outline"
+                  className="w-full mb-4"
+                  onClick={() => router.push('/chat')}
                 >
-                  <MessageCircle className="h-4 w-4 mr-3 shrink-0" />
-                  <div className="flex-1 overflow-hidden">
-                    <div className="font-medium truncate">Constitutional Amendments</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      What are the key amendments...
-                    </div>
-                  </div>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Chat
                 </Button>
+                
+                {threads.map((thread) => (
+                  <Button
+                    key={thread.id}
+                    variant="ghost"
+                    className="w-full justify-start text-left h-auto py-3 px-3 mb-1"
+                    onClick={() => {
+                      router.push(`/chat?thread=${thread.id}`)
+                      onClose?.()
+                    }}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-3 shrink-0" />
+                    <div className="flex-1 overflow-hidden">
+                      <div className="font-medium truncate">{thread.title}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {thread.messages[thread.messages.length - 1]?.content.slice(0, 50) || 'New chat'}...
+                      </div>
+                    </div>
+                  </Button>
+                ))}
               </div>
 
               <div className="p-4 border-t">

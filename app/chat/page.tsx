@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
 import { Button } from "@/components/ui/button"
@@ -39,11 +39,57 @@ export default function ChatPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const [threadId, setThreadId] = useState<string | null>(null)
 
   useEffect(() => {
     const accessToken = localStorage.getItem('access_token')
+    console.log('Auth check - access_token:', accessToken)
     setIsAuthenticated(!!accessToken)
   }, [])
+
+  useEffect(() => {
+    const loadOrCreateThread = async () => {
+      console.log('loadOrCreateThread called, isAuthenticated:', isAuthenticated)
+      if (!isAuthenticated) return
+      
+      const pehchanId = localStorage.getItem('pehchan_id')
+      console.log('Pehchan ID:', pehchanId)
+      if (!pehchanId) return
+
+      const threadIdParam = searchParams.get('thread')
+      if (threadIdParam) {
+        console.log('Loading thread:', threadIdParam)
+        const response = await fetch(`/api/chat/threads/${threadIdParam}?pehchan_id=${pehchanId}`)
+        const thread = await response.json()
+        console.log('Loaded thread:', thread)
+
+        if (thread) {
+          setThreadId(thread.id)
+          setMessages(thread.messages)
+        }
+      } else {
+        console.log('Creating new thread')
+        const response = await fetch('/api/chat/threads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            pehchanId,
+            title: 'New Chat'
+          })
+        })
+        const thread = await response.json()
+        console.log('Created thread:', thread)
+
+        if (thread) {
+          setThreadId(thread.id)
+          router.push(`/chat?thread=${thread.id}`)
+        }
+      }
+    }
+
+    loadOrCreateThread()
+  }, [isAuthenticated])
 
   const handleLogout = () => {
     localStorage.clear()
@@ -62,6 +108,7 @@ export default function ChatPage() {
     handleSubmit,
     isLoading,
     reload,
+    setMessages,
   } = useChat({
     api: "/api/chat",
     initialMessages: [
@@ -73,7 +120,21 @@ export default function ChatPage() {
       },
     ],
     onResponse: (response) => {
-      if (response) setIsGenerating(false)
+      if (response) {
+        setIsGenerating(false)
+        // Update thread via API
+        if (threadId) {
+          fetch(`/api/chat/threads/${threadId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages,
+              title: messages[1]?.content.slice(0, 100) || 'New Chat',
+              pehchanId: localStorage.getItem('pehchan_id')
+            })
+          })
+        }
+      }
     },
     onError: (error) => {
       if (error) setIsGenerating(false)
