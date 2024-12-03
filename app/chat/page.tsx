@@ -10,11 +10,13 @@ import {
   RefreshCcw,
   SendIcon,
   User,
+  LogOut,
 } from "lucide-react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   ChatBubble,
@@ -24,6 +26,7 @@ import {
 } from "@/components/ui/chat/chat-bubble"
 import { ChatInput } from "@/components/ui/chat/chat-input"
 import { MessageThreadsSidebar } from "@/app/components/message-threads-sidebar"
+import { PehchanLoginButton } from "@/components/pehchan-button"
 
 const ChatAiIcons = [
   { icon: CopyIcon, label: "Copy" },
@@ -33,6 +36,24 @@ const ChatAiIcons = [
 export default function ChatPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('access_token')
+    setIsAuthenticated(!!accessToken)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.clear()
+    window.dispatchEvent(new Event('localStorageChange'))
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out"
+    })
+    router.refresh()
+  }
 
   const {
     messages,
@@ -74,17 +95,31 @@ export default function ChatPage() {
 
       <div className="flex-1 flex flex-col overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center px-4 flex-none">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden mr-2"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <MessageSquare className="h-5 w-5 mr-2" />
-          <span className="font-semibold">Numainda Chat</span>
+        <div className="sticky top-0 z-10 bg-background h-14 border-b flex items-center justify-between px-4 flex-none">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden mr-2"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <MessageSquare className="h-5 w-5 mr-2" />
+            <span className="font-semibold">Numainda Chat</span>
+          </div>
+          
+          {/* {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          )} */}
         </div>
 
         {/* Messages */}

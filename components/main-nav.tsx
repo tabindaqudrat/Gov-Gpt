@@ -1,12 +1,14 @@
 'use client'
 import * as React from "react"
 import Link from "next/link"
-
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import { NavItem } from "@/types/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { Menu } from "lucide-react"
+import { Menu, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface MainNavProps {
   items?: NavItem[]
@@ -14,6 +16,32 @@ interface MainNavProps {
 
 export function MainNav({ items }: MainNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+
+  React.useEffect(() => {
+    const accessToken = localStorage.getItem('access_token')
+    setIsAuthenticated(!!accessToken)
+
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('access_token')
+      setIsAuthenticated(!!token)
+    }
+
+    window.addEventListener('localStorageChange', handleStorageChange)
+    return () => window.removeEventListener('localStorageChange', handleStorageChange)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.clear()
+    window.dispatchEvent(new Event('localStorageChange'))
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out"
+    })
+    router.refresh()
+  }
 
   return (
     <div className="flex items-center justify-between w-full">
@@ -24,38 +52,53 @@ export function MainNav({ items }: MainNavProps) {
         </Link>
       </div>
 
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden p-2"
-        aria-label="Toggle menu"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+      <div className="flex items-center gap-4">
+        {/* Desktop Navigation */}
+        {items?.length ? (
+          <nav className="hidden md:flex gap-6">
+            {items?.map(
+              (item, index) =>
+                item.href && (
+                  <Link
+                    key={index}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center text-sm font-medium text-muted-foreground",
+                      item.disabled && "cursor-not-allowed opacity-80"
+                    )}
+                  >
+                    {item.title}
+                  </Link>
+                )
+            )}
+          </nav>
+        ) : null}
 
-      {/* Desktop Navigation */}
-      {items?.length ? (
-        <nav className="hidden md:flex gap-6">
-          {items?.map(
-            (item, index) =>
-              item.href && (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center text-sm font-medium text-muted-foreground",
-                    item.disabled && "cursor-not-allowed opacity-80"
-                  )}
-                >
-                  {item.title}
-                </Link>
-              )
-          )}
-        </nav>
-      ) : null}
+        {/* Logout Button */}
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-muted-foreground hover:text-foreground hidden md:flex"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        )}
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2"
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      </div>
 
       {/* Mobile Navigation */}
-      {isOpen && items?.length ? (
+      {isOpen && (
         <nav className="absolute top-16 left-0 right-0 bg-background border-b md:hidden">
           <div className="flex flex-col p-4 space-y-3">
             {items?.map(
@@ -74,9 +117,21 @@ export function MainNav({ items }: MainNavProps) {
                   </Link>
                 )
             )}
+            {/* Mobile Logout Button */}
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-muted-foreground hover:text-foreground justify-start"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
           </div>
         </nav>
-      ) : null}
+      )}
     </div>
   )
 }
