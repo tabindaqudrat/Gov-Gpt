@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 export function Footer({ className }: { className?: string }) {
   return (
     <footer
-      className={cn("border-t relative bottom-0 z-40 bg-background", className)}
+      className={cn("relative bottom-0 z-40 border-t bg-background", className)}
     >
       <div className="container flex h-14 items-center justify-center text-sm">
         Built with{" "}

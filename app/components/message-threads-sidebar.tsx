@@ -103,24 +103,24 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
           onClick={onClose}
         />
       )}
       
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-80 bg-background border-r",
-          "transform transition-transform duration-200 ease-in-out lg:transform-none",
+          "fixed inset-y-0 left-0 z-50 w-80 border-r bg-background",
+          "transition-transform duration-200 ease-in-out lg:transform-none",
           "lg:relative lg:block",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex h-full flex-col">
-          <div className="h-14 border-b flex items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-between border-b px-4">
             <span className="font-semibold">Chats</span>
             <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
-              <X className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           </div>
           
@@ -129,10 +129,10 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
               <div className="flex-1 overflow-y-auto p-2">
                 <Button
                   variant="outline"
-                  className="w-full mb-4"
+                  className="mb-4 w-full"
                   onClick={() => router.push('/chat')}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 size-4" />
                   New Chat
                 </Button>
                 
@@ -140,40 +140,40 @@ export function MessageThreadsSidebar({ isOpen, onClose }: MessageThreadsSidebar
                   <Button
                     key={thread.id}
                     variant="ghost"
-                    className="w-full justify-start text-left h-auto py-3 px-3 mb-1 group"
+                    className="group mb-1 h-auto w-full justify-start p-3 text-left"
                     onClick={() => {
                       router.push(`/chat?thread=${thread.id}`)
                       onClose?.()
                     }}
                   >
-                    <MessageCircle className="h-4 w-4 mr-3 shrink-0" />
+                    <MessageCircle className="mr-3 size-4 shrink-0" />
                     <div className="flex-1 overflow-hidden">
-                      <div className="font-medium truncate">{thread.title}</div>
-                      <div className="text-xs text-muted-foreground truncate">
+                      <div className="truncate font-medium">{thread.title}</div>
+                      <div className="truncate text-xs text-muted-foreground">
                         {thread.messages[thread.messages.length - 1]?.content.slice(0, 50) || 'New chat'}...
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="opacity-0 transition-opacity group-hover:opacity-100"
                       onClick={(e) => handleDeleteThread(thread.id, e)}
                     >
-                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                      <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
                     </Button>
                   </Button>
                 ))}
               </div>
 
-              <div className="p-4 border-t">
+              <div className="border-t p-4">
                 <Button className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 size-4" />
                   New Chat
                 </Button>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center p-4">
+            <div className="flex flex-1 items-center justify-center p-4">
               <PehchanLoginButton />
             </div>
           )}

@@ -172,25 +172,25 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row w-full h-screen overflow-hidden touch-manipulation">
+    <div className="flex h-screen w-full touch-manipulation flex-col overflow-hidden lg:flex-row">
       <MessageThreadsSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col">
         {/* Header */}
-        <div className="flex-none sticky top-0 z-10 bg-background h-14 border-b flex items-center justify-between px-4">
+        <div className="sticky top-0 z-10 flex h-14 flex-none items-center justify-between border-b bg-background px-4">
           <div className="flex items-center">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden mr-2"
+              className="mr-2 lg:hidden"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="size-5" />
             </Button>
-            <MessageSquare className="h-5 w-5 mr-2" />
+            <MessageSquare className="mr-2 size-5" />
             <span className="font-semibold">Numainda Chat</span>
           </div>
           
@@ -198,8 +198,8 @@ export default function ChatPage() {
         </div>
 
         {/* Messages container */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="flex flex-col max-w-2xl mx-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex max-w-2xl flex-col p-4">
             {isClient && messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -209,14 +209,14 @@ export default function ChatPage() {
                 <ChatBubbleAvatar
                   className={
                     message.role === "assistant"
-                      ? "bg-primary/10 border border-primary/20"
+                      ? "border border-primary/20 bg-primary/10"
                       : "bg-muted"
                   }
                   fallback={
                     message.role === "assistant" ? (
-                      <Bot className="h-4 w-4" />
+                      <Bot className="size-4" />
                     ) : (
-                      <User className="h-4 w-4" />
+                      <User className="size-4" />
                     )
                   }
                 />
@@ -235,7 +235,7 @@ export default function ChatPage() {
                       size="icon"
                       onClick={() => copyToClipboard(message.content)}
                     >
-                      <CopyIcon className="h-4 w-4" />
+                      <CopyIcon className="size-4" />
                       <span className="sr-only">Copy message</span>
                     </Button>
                   } />
@@ -245,12 +245,12 @@ export default function ChatPage() {
             {isGenerating && isClient && (
               <ChatBubble variant="received" className="mb-6">
                 <ChatBubbleAvatar
-                  className="bg-primary/10 border border-primary/20"
-                  fallback={<Bot className="h-4 w-4" />}
+                  className="border border-primary/20 bg-primary/10"
+                  fallback={<Bot className="size-4" />}
                 />
                 <ChatBubbleMessage>
                   <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     <span className="text-sm">Numainda is thinking...</span>
                   </div>
                 </ChatBubbleMessage>
@@ -262,7 +262,7 @@ export default function ChatPage() {
 
         {/* Input - now will stay fixed at bottom */}
         <div className="flex-none border-t bg-background p-4">
-          <div className="max-w-2xl mx-auto">
+          <div className="mx-auto max-w-2xl">
             <form
               className="flex items-center gap-2"
               onSubmit={(e) => {
@@ -276,7 +276,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Message Numainda..."
-                className="w-full rounded-lg border px-3 py-2 text-base bg-slate-500/10"
+                className="w-full rounded-lg border bg-slate-500/10 px-3 py-2 text-base"
                 style={{ fontSize: "16px" }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {

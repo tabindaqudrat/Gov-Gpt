@@ -41,7 +41,7 @@ export function PehchanLoginButton() {
   return (
     <Button 
       onClick={handleLogin}
-      className="hover:bg-green-700 gap-2 text-white py-2 px-4 rounded-md flex items-center justify-center transition-colors"
+      className="flex items-center justify-center gap-2 rounded-md px-4 py-2 text-white transition-colors hover:bg-green-700"
     >
       <Icons.whiteLogo />
       Login with Pehchan

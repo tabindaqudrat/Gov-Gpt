@@ -51,7 +51,7 @@ export default function UploadPage() {
   if (!isAuthorized) {
     return (
       <div className="container max-w-md py-8">
-        <h1 className="text-2xl font-bold mb-8">Admin Access</h1>
+        <h1 className="mb-8 text-2xl font-bold">Admin Access</h1>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -83,7 +83,7 @@ export default function UploadPage() {
 
   return (
     <div className="container max-w-2xl py-8">
-      <h1 className="text-2xl font-bold mb-8">Upload Document</h1>
+      <h1 className="mb-8 text-2xl font-bold">Upload Document</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">

@@ -4,19 +4,19 @@ import { ExternalLink } from "lucide-react"
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto space-y-8 py-8">
       {/* Hero Section */}
-      <div className="relative h-[400px] rounded-lg overflow-hidden">
+      <div className="relative h-[400px] overflow-hidden rounded-lg">
         <div className="absolute inset-0">
           <img
             src="parliament.jpg"
             alt="Pakistan Parliament"
-            className="w-full h-full object-cover"
+            className="size-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </div>
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white p-6 text-center">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
+        <div className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center text-white">
+          <h1 className="mb-4 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             Meet Numainda
           </h1>
           <p className="text-xl text-white/80">
@@ -69,11 +69,11 @@ export default function AboutPage() {
         <CardHeader>
           <CardTitle>Our Story in the Media</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col md:flex-row gap-6 items-center">
+        <CardContent className="flex flex-col items-center gap-6 md:flex-row">
           <img 
             src="https://codeforpakistan.org/sites/default/files/cfp_logotype_h.png" 
             alt="Code for Pakistan Logo" 
-            className="w-24 h-24 object-contain"
+            className="size-24 object-contain"
           />
           <div className="space-y-4">
             <h3 className="text-2xl font-semibold">Say Hello to My New Friend</h3>
@@ -89,7 +89,7 @@ export default function AboutPage() {
                 className="flex items-center gap-2"
               >
                 Read on Code for Pakistan
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="size-4" />
               </a>
             </Button>
           </div>

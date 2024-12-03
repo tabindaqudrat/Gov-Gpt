@@ -88,9 +88,9 @@ export default function AuthCallback() {
 
   if (isProcessing) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 size-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
           <p className="text-gray-600">Processing your login...</p>
         </div>
       </div>

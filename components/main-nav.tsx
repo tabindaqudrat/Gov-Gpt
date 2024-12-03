@@ -44,10 +44,10 @@ export function MainNav({ items }: MainNavProps) {
   }
 
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex w-full items-center justify-between">
       <div className="flex items-center">
         <Link href="/" className="flex items-center space-x-2">
-          <img src="/logo-numainda.svg" alt="Numainda Logo" className="h-8 w-8" />
+          <img src="/logo-numainda.svg" alt="Numainda Logo" className="size-8" />
           <span className="inline-block font-bold">{siteConfig.name}</span>
         </Link>
       </div>
@@ -55,7 +55,7 @@ export function MainNav({ items }: MainNavProps) {
       <div className="flex items-center gap-4">
         {/* Desktop Navigation */}
         {items?.length ? (
-          <nav className="hidden md:flex gap-6">
+          <nav className="hidden gap-6 md:flex">
             {items?.map(
               (item, index) =>
                 item.href && (
@@ -80,9 +80,9 @@ export function MainNav({ items }: MainNavProps) {
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="text-muted-foreground hover:text-foreground hidden md:flex"
+            className="hidden text-muted-foreground hover:text-foreground md:flex"
           >
-            <LogOut className="h-4 w-4 mr-2" />
+            <LogOut className="mr-2 size-4" />
             Logout
           </Button>
         )}
@@ -90,17 +90,17 @@ export function MainNav({ items }: MainNavProps) {
         {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2"
+          className="p-2 md:hidden"
           aria-label="Toggle menu"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="size-6" />
         </button>
       </div>
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <nav className="absolute top-16 left-0 right-0 bg-background border-b md:hidden">
-          <div className="flex flex-col p-4 space-y-3">
+        <nav className="absolute inset-x-0 top-16 border-b bg-background md:hidden">
+          <div className="flex flex-col space-y-3 p-4">
             {items?.map(
               (item, index) =>
                 item.href && (
@@ -123,9 +123,9 @@ export function MainNav({ items }: MainNavProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-muted-foreground hover:text-foreground justify-start"
+                className="justify-start text-muted-foreground hover:text-foreground"
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="mr-2 size-4" />
                 Logout
               </Button>
             )}
