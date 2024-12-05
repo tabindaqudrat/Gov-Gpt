@@ -172,7 +172,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen w-full touch-manipulation flex-col overflow-hidden lg:flex-row">
+    <div className="flex w-full touch-manipulation flex-col overflow-hidden lg:flex-row">
       <MessageThreadsSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -198,8 +198,8 @@ export default function ChatPage() {
         </div>
 
         {/* Messages container */}
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-2xl flex-col p-4">
+        <div className="flex min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex max-w-2xl flex-col p-4 mt-auto">
             {isClient && messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -261,7 +261,7 @@ export default function ChatPage() {
         </div>
 
         {/* Input - now will stay fixed at bottom */}
-        <div className="flex-none border-t bg-background p-4">
+        <div className="flex-none bg-background p-4 ">
           <div className="mx-auto max-w-2xl">
             <form
               className="flex items-center gap-2"
