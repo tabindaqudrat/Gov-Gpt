@@ -8,6 +8,7 @@ import { generateEmbeddings, generateProceedingSummary } from '../ai/embedding';
 import { embeddings as embeddingsTable } from '../db/schema/embeddings';
 import { createProceeding } from "../proceedings";
 import { nanoid } from 'nanoid';
+import { bills, insertBillSchema } from '../db/schema/bills';
 
 // Helper function to detect section headers
 function detectSection(content: string): string | null {
@@ -143,7 +144,7 @@ export const uploadDocument = async (
       originalFileName: file.name,
     });
 
-    // If it's a parliamentary bulletin, create the summary
+    // Handle different document types
     if (type === 'parliamentary_bulletin') {
       if (!bulletinDate) {
         throw new Error('Bulletin date is required');
@@ -153,9 +154,26 @@ export const uploadDocument = async (
       
       await createProceeding({
         title,
-        date: bulletinDate, // Use the date from the form input
+        date: bulletinDate,
         summary,
         originalText: text,
+      });
+    } else if (type === 'bill') {
+      const billNumber = formData.get('billNumber') as string;
+      const sessionNumber = formData.get('sessionNumber') as string;
+      const status = formData.get('status') as string;
+      const passageDate = formData.get('passageDate') as string;
+      
+      const summary = await generateBillSummary(text);
+      
+      await db.insert(bills).values({
+        title,
+        status,
+        summary,
+        originalText: text,
+        billNumber,
+        sessionNumber,
+        passageDate: passageDate ? new Date(passageDate) : null,
       });
     }
 
@@ -172,3 +190,40 @@ export const uploadDocument = async (
     };
   }
 };
+
+async function generateBillSummary(text: string): Promise<string> {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4-turbo-preview',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a legal expert specializing in summarizing legislative bills. Create clear, concise summaries that highlight the key points, main objectives, and potential impacts of the bill.'
+          },
+          {
+            role: 'user',
+            content: `Please provide a concise summary of this bill: ${text}`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate summary');
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('Error generating bill summary:', error);
+    return 'Error generating summary. Please try again later.';
+  }
+}

@@ -21,6 +21,10 @@ export const siteConfig = {
       title: "Proceedings",
       href: "/proceedings",
     },
+    {
+      title: "Bills",
+      href: "/bills",
+    },
   ],
   links: {
     twitter: "https://twitter.com/codeforpakistan",
