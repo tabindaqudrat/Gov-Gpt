@@ -105,6 +105,7 @@ export default function UploadPage() {
               <SelectItem value="constitution">Constitution</SelectItem>
               <SelectItem value="election_law">Election Law</SelectItem>
               <SelectItem value="parliamentary_bulletin">Parliamentary Bulletin</SelectItem>
+              <SelectItem value="bill">National Assembly Bill</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -119,6 +120,51 @@ export default function UploadPage() {
               required={documentType === 'parliamentary_bulletin'}
             />
           </div>
+        )}
+
+        {documentType === 'bill' && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="billNumber">Bill Number</Label>
+              <Input 
+                id="billNumber" 
+                name="billNumber" 
+                required={documentType === 'bill'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sessionNumber">Session Number</Label>
+              <Input 
+                id="sessionNumber" 
+                name="sessionNumber" 
+                required={documentType === 'bill'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Bill Status</Label>
+              <Select 
+                name="status" 
+                required={documentType === 'bill'}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="passed">Passed</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="passageDate">Passage Date</Label>
+              <Input 
+                id="passageDate" 
+                name="passageDate" 
+                type="date"
+              />
+            </div>
+          </>
         )}
 
         <div className="space-y-2">
