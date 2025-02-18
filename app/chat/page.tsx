@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, Suspense } from "react"
 import { useChat } from "ai/react"
 import {
   Bot,
@@ -34,7 +34,7 @@ const ChatAiIcons = [
   { icon: RefreshCcw, label: "Refresh" },
 ]
 
-export default function ChatPage() {
+function ChatPageContent() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -296,5 +296,15 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>}>
+      <ChatPageContent />
+    </Suspense>
   )
 }
