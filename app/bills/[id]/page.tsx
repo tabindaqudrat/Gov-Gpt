@@ -15,10 +15,9 @@ export default async function BillPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-6">{bill.title}</h1>
-      
-      <div className="bg-white rounded-lg shadow p-6">
+    <div className="container mx-auto py-8">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 text-3xl font-bold">{bill.title}</h1>
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* <div>
             <p className="text-sm text-gray-600">Bill Number</p>
@@ -29,28 +28,26 @@ export default async function BillPage({ params }: { params: { id: string } }) {
             <p className="font-medium">{bill.sessionNumber}</p>
           </div> */}
           <div>
-            <p className="text-sm text-gray-600">Status</p>
-            <p className={`
-              inline-block px-2 py-1 rounded-full text-sm
-              ${bill.status === 'passed' ? 'bg-green-100 text-green-800' : 
-                bill.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                'bg-yellow-100 text-yellow-800'}
+            <p className="text-sm">Status</p>
+            <p className={`inline-block px-2 py-1 rounded-full text-sm
+              ${bill.status === 'passed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                bill.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}
             `}>
               {bill.status.charAt(0).toUpperCase() + bill.status.slice(1)}
             </p>
           </div>
           {bill.passageDate && (
             <div>
-              <p className="text-sm text-gray-600">Passage Date</p>
+              <p className="text-sm">Passage Date</p>
               <p className="font-medium">
                 {new Date(bill.passageDate).toLocaleDateString()}
               </p>
             </div>
           )}
         </div>
-
-        <div className="prose max-w-none">
-          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+        <div className="prose max-w-none dark:prose-invert">
+          <h2 className="mb-4 text-xl font-semibold">Summary</h2>
           <div className="whitespace-pre-wrap"><ReactMarkdown>{bill.summary}</ReactMarkdown></div>
         </div>
       </div>
