@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { documentUploads } from '@/lib/db/schema/document-uploads';
 import { eq } from 'drizzle-orm';
 import { uploadDocument } from '@/lib/actions/documents';
+import { getSignedUrlForFile } from '@/lib/s3';
 
 interface UploadMetadata {
   [key: string]: string;
@@ -34,8 +35,17 @@ async function handler(req: Request) {
     }
 
     try {
-      // Fetch the file directly from S3 URL
-      const fileResponse = await fetch(upload.fileUrl);
+      // Extract the file key from the S3 URL
+      const fileKey = upload.fileUrl.split('/').pop();
+      if (!fileKey) {
+        throw new Error('Invalid file URL');
+      }
+
+      // Get a signed URL for the file
+      const signedUrl = await getSignedUrlForFile(fileKey);
+      
+      // Fetch the file using the signed URL
+      const fileResponse = await fetch(signedUrl);
       if (!fileResponse.ok) {
         throw new Error(`Failed to fetch file from S3: ${fileResponse.statusText}`);
       }
