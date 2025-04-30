@@ -128,6 +128,7 @@ export const uploadDocument = async (
   formData: FormData
 ): Promise<{ success: boolean; message: string; document?: any }> => {
   try {
+    console.log('uploadDocument Process Started');
     const file = formData.get('file') as File;
     const title = formData.get('title') as string;
     const type = formData.get('type') as string;
