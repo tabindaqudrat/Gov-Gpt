@@ -17,6 +17,7 @@ const getBaseUrl = () => {
   }
   // Ensure the URL has a scheme
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://numainda.codeforpakistan.org';
+  console.log('appUrl', appUrl);
   return appUrl.startsWith('http') ? appUrl : `https://${appUrl}`;
 };
 
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
 
     // Queue the processing job
     const webhookUrl = `${getBaseUrl()}/api/admin/uploads/process`;
-    
+    console.log('webhookUrl', webhookUrl);
     await qstash.publish({
       url: webhookUrl,
       body: JSON.stringify({ uploadId: upload.id }),
