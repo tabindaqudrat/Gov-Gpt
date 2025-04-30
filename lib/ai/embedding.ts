@@ -65,7 +65,7 @@ export const findRelevantContent = async (userQuery: string) => {
 
 export async function generateProceedingSummary(text: string): Promise<string> {
   const { text: summary } = await generateText({
-    model: openai('gpt-4-turbo-preview'),
+    model: openai('gpt-4o'),
     system: 'You are an expert pakistani parliamentary analyst. Create a detailed, well-structured summary of the following parliamentary proceeding. Include key points discussed, decisions made, and significant debates. Format as well written markdown ensure line breaks and headings for better readability.',
     messages: [
       {
