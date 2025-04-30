@@ -11,15 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { uploadDocument } from '@/lib/actions/documents';
+import { Progress } from "@/components/ui/progress";
+import { useRouter } from 'next/navigation';
 
 export default function UploadPage() {
+  const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [documentType, setDocumentType] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const checkPassword = async (inputPassword: string) => {
     try {
@@ -73,17 +76,44 @@ export default function UploadPage() {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setUploadProgress(0);
 
     const formData = new FormData(e.currentTarget);
-    const result = await uploadDocument(formData);
-    
-    setMessage(result.message);
-    setLoading(false);
+    const file = formData.get('file') as File;
+
+    try {
+      // Create upload record
+      const uploadResponse = await fetch('/api/admin/uploads', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to create upload record');
+      }
+
+      const upload = await uploadResponse.json();
+      setMessage('Upload started. You can monitor progress in the dashboard.');
+      
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/admin/dashboard');
+      }, 2000);
+
+    } catch (error) {
+      setMessage('Error: ' + (error as Error).message);
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container max-w-2xl py-8">
-      <h1 className="mb-8 text-2xl font-bold">Upload Document</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">Upload Document</h1>
+        <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>
+          View Dashboard
+        </Button>
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
@@ -106,6 +136,7 @@ export default function UploadPage() {
               <SelectItem value="election_law">Election Law</SelectItem>
               <SelectItem value="parliamentary_bulletin">Parliamentary Bulletin</SelectItem>
               <SelectItem value="bill">National Assembly Bill</SelectItem>
+              <SelectItem value="amendment">Amendment</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -172,8 +203,15 @@ export default function UploadPage() {
           <Input id="file" name="file" type="file" accept=".pdf" required />
         </div>
 
+        {uploadProgress > 0 && (
+          <div className="space-y-2">
+            <Label>Upload Progress</Label>
+            <Progress value={uploadProgress} />
+          </div>
+        )}
+
         <Button type="submit" disabled={loading}>
-          {loading ? 'Uploading...' : 'Upload Document'}
+          {loading ? 'Starting Upload...' : 'Upload Document'}
         </Button>
 
         {message && (
