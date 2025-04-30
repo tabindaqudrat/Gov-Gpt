@@ -22,7 +22,7 @@ export const siteConfig = {
       href: "/proceedings",
     },
     {
-      title: "Bills & Acts",
+      title: "Acts",
       href: "/bills",
     },
     {
