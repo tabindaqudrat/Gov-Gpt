@@ -34,11 +34,12 @@ async function handler(req: Request) {
     }
 
     try {
-      // Add the file to the form data
-      const baseUrl = process.env.NODE_ENV === 'development' && process.env.NGROK_URL 
-        ? process.env.NGROK_URL 
-        : process.env.NEXT_PUBLIC_APP_URL;
-      const fileResponse = await fetch(`${baseUrl}${upload.fileUrl}`);
+      // Fetch the file directly from S3 URL
+      const fileResponse = await fetch(upload.fileUrl);
+      if (!fileResponse.ok) {
+        throw new Error(`Failed to fetch file from S3: ${fileResponse.statusText}`);
+      }
+      
       const fileBlob = await fileResponse.blob();
       const file = new File([fileBlob], upload.originalFileName, { type: 'application/pdf' });
       
