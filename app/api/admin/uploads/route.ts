@@ -3,8 +3,7 @@ import { db } from '@/lib/db';
 import { documentUploads } from '@/lib/db/schema/document-uploads';
 import { eq } from 'drizzle-orm';
 import { Client } from '@upstash/qstash';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { uploadToS3 } from '@/lib/s3';
 
 // Create QStash client
 const qstash = new Client({
@@ -35,18 +34,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Save the file
+    // Convert file to buffer and upload to S3
     const bytes = await file.arrayBuffer();
-    const buffer = new Uint8Array(bytes);
+    const buffer = Buffer.from(bytes);
     const fileName = `${Date.now()}-${file.name}`;
-    const filePath = join(process.cwd(), 'public', 'uploads', fileName);
-    await writeFile(filePath, buffer);
+    const fileUrl = await uploadToS3(buffer, fileName, file.type);
 
     // Create upload record
     const [upload] = await db.insert(documentUploads).values({
       originalFileName: file.name,
       fileSize: file.size,
-      fileUrl: `/uploads/${fileName}`,
+      fileUrl,
       status: 'pending',
       metadata: {
         title,
