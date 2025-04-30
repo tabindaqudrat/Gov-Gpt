@@ -10,6 +10,16 @@ const qstash = new Client({
   token: process.env.QSTASH_TOKEN!,
 });
 
+// Get the base URL for webhooks
+const getBaseUrl = () => {
+  if (process.env.NODE_ENV === 'development' && process.env.NGROK_URL) {
+    return process.env.NGROK_URL;
+  }
+  // Ensure the URL has a scheme
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://numainda.codeforpakistan.org';
+  return appUrl.startsWith('http') ? appUrl : `https://${appUrl}`;
+};
+
 export async function GET() {
   try {
     const uploads = await db.select().from(documentUploads).orderBy(documentUploads.createdAt);
@@ -55,12 +65,10 @@ export async function POST(request: Request) {
     }).returning();
 
     // Queue the processing job
-    const baseUrl = process.env.NODE_ENV === 'development' && process.env.NGROK_URL 
-      ? process.env.NGROK_URL 
-      : process.env.NEXT_PUBLIC_APP_URL;
+    const webhookUrl = `${getBaseUrl()}/api/admin/uploads/process`;
     
     await qstash.publish({
-      url: `${baseUrl}/api/admin/uploads/process`,
+      url: webhookUrl,
       body: JSON.stringify({ uploadId: upload.id }),
       retries: 3,
     });
