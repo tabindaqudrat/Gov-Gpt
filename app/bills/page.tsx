@@ -48,7 +48,7 @@ export default function BillsPage() {
 
   return (
     <div className="container py-8">
-      <h1 className="mb-8 text-3xl font-bold">National Assembly Bills</h1>
+      <h1 className="mb-8 text-3xl font-bold">Acts of Parliament</h1>
       
       {loading && (
         <div className="grid gap-4">
