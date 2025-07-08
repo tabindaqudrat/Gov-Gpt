@@ -18,6 +18,10 @@ function detectSection(content: string): string | null {
     /^([A-Z][A-Za-z\s]{2,}:)/m,  // Capitalized words followed by colon
     /^(\d+\.\d*\s+[A-Z][A-Za-z\s]{2,})/m,  // Numbered sections
     /^([A-Z][A-Za-z\s]{2,})$/m,  // All-caps or Title Case lines
+    /^Rule\s+\d+[:\s]/m,          // Rule 12:
+    /^Section\s+\d+[:\s]/m,       // Section 3:
+    /^Part\s+[A-Z]+/m,            // Part IV
+    /^Chapter\s+[A-Z]+/im,        // Chapter II (case-insensitive)
   ];
 
   for (const pattern of sectionPatterns) {
@@ -166,56 +170,12 @@ export const uploadDocument = async (
     console.log('Document record created:', document.id);
 
     // Handle different document types
-    if (type === 'parliamentary_bulletin') {
-      console.log('Processing parliamentary bulletin...');
-      if (!bulletinDate) {
-        throw new Error('Bulletin date is required');
-      }
-      
-      try {
-        console.log('Generating proceeding summary...');
-        const summary = await generateProceedingSummary(text);
-        console.log('Summary generated');
-        
-        console.log('Creating proceeding...');
-        await createProceeding({
-          title,
-          date: bulletinDate,
-          summary,
-          originalText: text,
-        });
-        console.log('Proceeding created');
-      } catch (error) {
-        console.error('Error processing bulletin:', error);
-        // Don't throw here, we still want to return the document
-      }
-    } else if (type === 'bill') {
-      console.log('Processing bill...');
-      const billNumber = formData.get('billNumber') as string;
-      const sessionNumber = formData.get('sessionNumber') as string;
-      const status = formData.get('status') as string;
-      const passageDate = formData.get('passageDate') as string;
-      
-      try {
-        console.log('Generating bill summary...');
-        const summary = await generateBillSummary(text);
-        console.log('Bill summary generated');
-        
-        console.log('Creating bill record...');
-        await db.insert(bills).values({
-          title,
-          status,
-          summary,
-          originalText: text,
-          billNumber,
-          sessionNumber,
-          passageDate: passageDate ? new Date(passageDate) : null,
-        });
-        console.log('Bill record created');
-      } catch (error) {
-        console.error('Error processing bill:', error);
-        // Don't throw here, we still want to return the document
-      }
+    if (type === 'rules_policy') {
+      console.log('Processing rules and policy document — no extra action needed.');
+    } else if (type === 'citizen_services') {
+      console.log('Processing citizen service document — no extra action needed.');
+    } else {
+      console.warn(`Unhandled document type: ${type} — skipping additional processing.`);
     }
 
     return {
@@ -232,45 +192,3 @@ export const uploadDocument = async (
   }
 };
 
-async function generateBillSummary(text: string): Promise<string> {
-  try {
-    console.log('Calling OpenAI for bill summary...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a legal expert specializing in summarizing legislative bills. Create clear, concise summaries that highlight the key points, main objectives, and potential impacts of the bill.'
-          },
-          {
-            role: 'user',
-            content: `Please provide a concise summary of this bill: ${text}`
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
-      // Add timeout
-      signal: AbortSignal.timeout(30000), // 30 second timeout
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
-  } catch (error: any) {
-    console.error('Error generating bill summary:', error);
-    if (error.name === 'AbortError') {
-      return 'Summary generation timed out. The document was uploaded but summary generation failed.';
-    }
-    return 'Error generating summary. The document was uploaded but summary generation failed.';
-  }
-}
