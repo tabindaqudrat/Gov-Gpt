@@ -4,11 +4,11 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { documents, insertDocumentSchema } from '@/lib/db/schema/documents';
 import { db } from '../db';
-import { generateEmbeddings, generateProceedingSummary } from '../ai/embedding';
+import { generateEmbeddings } from '../ai/embedding';
 import { embeddings as embeddingsTable } from '../db/schema/embeddings';
-import { createProceeding } from "../proceedings";
+// import { createProceeding } from "../proceedings"; //
 import { nanoid } from 'nanoid';
-import { bills, insertBillSchema } from '../db/schema/bills';
+// import { bills, insertBillSchema } from '../db/schema/bills'; //
 
 // Helper function to detect section headers
 function detectSection(content: string): string | null {
