@@ -63,19 +63,25 @@ export const findRelevantContent = async (userQuery: string) => {
   return similarContent;
 };
 
-export async function generateProceedingSummary(text: string): Promise<string> {
-  const { text: summary } = await generateText({
+export async function answerWithContext(userQuery: string): Promise<string> {
+  const contextChunks = await findRelevantContent(userQuery);
+
+  const context = contextChunks.map(chunk =>
+    `Source: ${chunk.documentTitle} (Page ${chunk.pageNumber})\nSection: ${chunk.section || "N/A"}\nContent:\n${chunk.content}`
+  ).join('\n\n---\n\n');
+
+  const { text: answer } = await generateText({
     model: openai('gpt-4o'),
-    system: 'You are an expert pakistani parliamentary analyst. Create a detailed, well-structured summary of the following parliamentary proceeding. Include key points discussed, decisions made, and significant debates. Format as well written markdown ensure line breaks and headings for better readability.',
+    system: `You are an expert AI assistant trained on official documents from the Government of Khyber Pakhtunkhwa (KP). Use only the provided content to answer citizen and official queries clearly, accurately, and concisely. If the information is not available in the context, respond with: "I'm sorry, this information is not available in the current documents."`,
     messages: [
       {
         role: 'user',
-        content: text
+        content: `Context:\n${context}\n\nQuestion: ${userQuery}`
       }
     ],
-    temperature: 0.7,
-    maxTokens: 1500
-  })
+    temperature: 0.3,
+    maxTokens: 1000
+  });
 
-  return summary
+  return answer;
 }
